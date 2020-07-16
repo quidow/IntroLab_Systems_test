@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  scraper:
+    build: ./app
+    command: python main.py
+    volumes:
+      - ./app/:/usr/src/app/
+      - ./files/:/usr/src/files/
+    depends_on:
+      - chromedriver
+  chromedriver:
+    image: selenium/standalone-chrome
+    ports:
+      - "4444:4444"
