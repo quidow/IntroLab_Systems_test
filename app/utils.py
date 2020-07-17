@@ -6,9 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import requests
 import csv
-
-driver = webdriver.Remote("http://chromedriver:4444/wd/hub", DesiredCapabilities.CHROME)
-driver.current_url
+from datetime import date, timedelta
 
 
 class WebDriver:
@@ -46,6 +44,36 @@ def download_file(company_name, link):
     if response.status_code == 200:
         with open(f'../files/{company_name}.csv', 'wb') as f:
             f.write(response.content)
+
+
+def calculate_before_change(filename, days):
+    rows = []
+    with open(filename) as file:
+        file.readline()
+        for line in file:
+            row = line.strip().split(',')
+            rows.append(row)
+    with open(filename, 'w') as file:
+        file.write('Date,Open,High,Low,Close,Adj Close,Volume,3day_before_change\n')
+        file.write(','.join(rows[0]) + ',-\n')
+
+        for i in range(1, days):
+            for n in range(1, days):
+                if date.fromisoformat(rows[i][0]) - date.fromisoformat(rows[i-n][0]) == timedelta(days=3):
+                    ratio = float(rows[i][4]) / float(rows[i-n][4])
+                    file.write(','.join(rows[i]) + f',{ratio}\n')
+                    break
+            else:
+                file.write(','.join(rows[i]) + ',-\n')
+
+        for i in range(3, len(rows)):
+            for n in range(1, days + 1):
+                if date.fromisoformat(rows[i][0]) - date.fromisoformat(rows[i-n][0]) == timedelta(days=3):
+                    ratio = float(rows[i][4]) / float(rows[i-n][4])
+                    file.write(','.join(rows[i]) + f',{ratio}\n')
+                    break
+            else:
+                file.write(','.join(rows[i]) + ',-\n')
 
 
 def get_news(company_name):
