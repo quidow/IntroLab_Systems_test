@@ -20,7 +20,7 @@ class WebDriver:
         self.driver.quit()
 
 
-def get_download_link(company_name):
+def get_download_link(company_name: str):
     with WebDriver(webdriver.Remote("http://chromedriver:4444/wd/hub", DesiredCapabilities.CHROME)) as driver:
         driver.get(f'https://finance.yahoo.com/quote/{company_name}/history?p={company_name}')
         if driver.current_url != f'https://finance.yahoo.com/quote/{company_name}/history?p={company_name}':
@@ -39,14 +39,14 @@ def get_download_link(company_name):
         return link
 
 
-def download_file(company_name, link):
+def download_file(company_name: str, link: str):
     response = requests.get(link)
     if response.status_code == 200:
         with open(f'../files/{company_name}.csv', 'wb') as f:
             f.write(response.content)
 
 
-def calculate_before_change(filename, days):
+def calculate_before_change(filename: str, days: int):
     rows = []
     with open(filename) as file:
         file.readline()
@@ -66,7 +66,7 @@ def calculate_before_change(filename, days):
             else:
                 file.write(','.join(rows[i]) + ',-\n')
 
-        for i in range(3, len(rows)):
+        for i in range(days, len(rows)):
             for n in range(1, days + 1):
                 if date.fromisoformat(rows[i][0]) - date.fromisoformat(rows[i-n][0]) == timedelta(days=3):
                     ratio = float(rows[i][4]) / float(rows[i-n][4])
@@ -76,7 +76,7 @@ def calculate_before_change(filename, days):
                 file.write(','.join(rows[i]) + ',-\n')
 
 
-def get_news(company_name):
+def get_news(company_name: str):
     with WebDriver(webdriver.Remote("http://chromedriver:4444/wd/hub", DesiredCapabilities.CHROME)) as driver:
         driver.get(f'https://finance.yahoo.com/quote/{company_name}/')
         if driver.current_url != f'https://finance.yahoo.com/quote/{company_name}/':
@@ -93,7 +93,7 @@ def get_news(company_name):
         return news
 
 
-def write_news_to_file(company_name, news):
+def write_news_to_file(company_name: str, news: list):
     with open(f'../files/{company_name}-news.csv', 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter='|')
         csvwriter.writerow(['link', 'title'])
