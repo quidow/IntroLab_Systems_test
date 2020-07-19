@@ -1,4 +1,5 @@
 # IntroLab Systems test
+Web-scraper for <a href="https://finance.yahoo.com">finance.yahoo.com</a>
 ## Requirements
 - docker-compose
 ## Usage
